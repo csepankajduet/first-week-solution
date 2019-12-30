@@ -1,5 +1,6 @@
 <?php
-	require_once 'C:\xampp\htdocs\pdo.php';
+	require_once 'C:\xampp\htdocs\first-week-solution\pdo.php';
+	error_reporting(E_ERROR | E_WARNING | E_PARSE);
 	//include 'pdo.php';
 	session_start();
 	unset($_SESSION['name']);
@@ -8,7 +9,7 @@
 		header('Location: index.php');
 		return;
 	}
-	echo "string";
+	//echo "string";
 	$salt = 'XxZzy12*_';
 	if(isset($_POST['email']) && isset($_POST['password'])){
 		if (strlen($_POST['email']) < 1 || strlen($_POST['password']) < 1) {
@@ -18,11 +19,12 @@
 		}
 	}
 	$email = $_POST['email'];
-	$check = hash('md5', $salt.$_POST['password']);
+	$check = $_POST['password'];
 	echo $check;
-	$link = mysqli_connect("localhost", "root", "", "test"); 
+	$link = mysqli_connect("localhost", "root", "", "schema1"); 
 	  
 	if($link === false){ 
+		echo "string erer";
 	    die("ERROR: Could not connect. " 
 	                . mysqli_connect_error()); 
 	} 
@@ -30,15 +32,28 @@
 	$sql = "SELECT * FROM users WHERE email= '".$email;
 	$sql .= "' AND password='".$check;
 	$sql .= "'";
+	//$result -> query($sql);
+	//$row = $result -> fetch_array(MYSQLI_BOTH);
 	$res = mysqli_query($link, $sql);
-	echo $sql;
-	$row = mysqli_fetch_array($res);
-	//echo $row['email'];
-	if($email === $row['email'] && $check === $row['password']){
+	echo "sql: ".$sql;
+	$row = mysqli_fetch_array($res,MYSQLI_NUM);
+	//printf ("%s (%s)\n", $row[0]);
+	//$row = $result -> fetch_array(MYSQLI_BOTH);
+	while($row = mysqli_fetch_array($res)) {             
+	    $posts['email'] = $row['email'];
+	    $posts['password'] = $row['password']; 
+	    echo $posts['email'];
+	} 
+	$v1 = $row[0];
+	//$v2 = $row[1];
+	echo $row[0];
+	//echo $v2;
+	echo "string";
+	$_SESSION['name'] = $row['name'];
+	$_SESSION['user_id'] = $row['user_id'];
+	if($row['email'] == $email && $check == $row['password']){
 		header('Location: index.php');
 	}
-	
-	//mysqli_close();
 ?>
 
 
