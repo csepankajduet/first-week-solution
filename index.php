@@ -35,7 +35,7 @@
 <div class="container">
 <h2><center>Pankaj Mallik's Resume Registry</center></h2>
 <input type="hidden" id="custId" name="custId" value="1">
-<p><a href="login1.php"> <?php if(!isset($_SESSION['name'])) 
+<p><a href="login.php"> <?php if(!isset($_SESSION['name'])) 
 {
 	echo "Please log in";
 }?></a></p>
@@ -46,9 +46,7 @@
 <table class="table" border="1">
 <thead>
 	<tr>
-		<th><center>First Name</center></th>
-		<th><center>Last Name</center></th>
-		<th><center>Email</center></th>
+		<th><center>Name</center></th>
 		<th><center>Headline</center></th>
 		<?php if(isset($_SESSION['name'])) 
 		echo '<th><center>Action</center></th>';
@@ -62,25 +60,20 @@ foreach ($res as $key => $row) {
 <tbody>
 	<tr>
 		<td>
-			<center><?php echo $row['first_name'];?></center>
-		</td>
-		<td>
-			<center><?php echo $row['last_name'];?></center>
-		</td>
-		<td>
-			<center><?php echo $row['email'];?></center>
+			<a href="view.php?profile_id=<?php echo $row["profile_id"]; ?>"><center><?php echo $row['first_name'].' '.$row['last_name'];?></center></a>
 		</td>
 		<td>
 			<center><?php echo $row['headline'];?></center>
 		</td>
+		<?php if(isset($_SESSION['name'])){?>
 		<td><center>
-			<?php if(isset($_SESSION['name'])){?>
 			<a href="edit.php?profile_id=<?php echo $row["profile_id"]; ?>">Edit</a>
 			<a href="delete.php?profile_id=<?php echo $row["profile_id"]; ?>">Delete</a>
-		<?php 
-			}
-		?></center>
+			</center>
 		</td>
+				<?php 
+			}
+		?>
 	</tr>
 </tbody>
 <?php
