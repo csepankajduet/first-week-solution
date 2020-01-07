@@ -10,15 +10,15 @@
 		return;
 	}
 	$salt = 'XxZzy12*_';
-	if(isset($_POST['email']) && isset($_POST['password'])){
-		if (strlen($_POST['email']) < 1 || strlen($_POST['password']) < 1) {
+	if(isset($_POST['email']) && isset($_POST['pass'])){
+		if (strlen($_POST['email']) < 1 || strlen($_POST['pass']) < 1) {
 			$_SESSION['error'] = "Email or Password is required";
 			header('Location: login.php');
 			exit();
 		}
 	}
 	$email = $_POST['email'];
-	$check = hash('md5', $salt.$_POST['password']);
+	$check = hash('md5', $salt.$_POST['pass']);
 	$link = mysqli_connect("localhost", "root", "", "test"); 
 	  
 	if($link === false){ 
@@ -100,7 +100,7 @@
 						<div class="input-group-prepend">
 							<span class="input-group-text"><i class="fas fa-key"></i></span>
 						</div>
-						<input type="password" id="password" name="password" class="form-control" placeholder="password">
+						<input type="password" id="password" name="pass" class="form-control" placeholder="password">
 					</div>
 					<div class="row align-items-center remember">
 						<input type="checkbox">Remember Me
@@ -153,6 +153,5 @@ function doValidate() {
 }
 </script>
 
-</div>
 </body>
 </html>

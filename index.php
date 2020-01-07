@@ -35,6 +35,24 @@
 <div class="container">
 <h2><center>Pankaj Mallik's Resume Registry</center></h2>
 <input type="hidden" id="custId" name="custId" value="1">
+<p> <?php 
+
+	if(isset($_SESSION['edit'])){ 
+	echo "Profile updated";
+	unset ($_SESSION["edit"]);
+	} 
+
+	if(isset($_SESSION['conformation'])){ 
+	echo "Profile added";
+	unset ($_SESSION["conformation"]);
+	
+	} 
+
+	if (isset($_SESSION['conformation_delete'])) {
+		echo "Profile deleted";
+		unset ($_SESSION['conformation_delete']);
+	}
+	?> </p>
 <p><a href="login.php"> <?php if(!isset($_SESSION['name'])) 
 {
 	echo "Please log in";

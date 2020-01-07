@@ -1,6 +1,13 @@
 <?php
 	session_start();
 	error_reporting(E_ERROR | E_WARNING | E_PARSE);
+    session_start();
+    if(isset($_POST['cancel'])){
+        echo "hello";
+        header('Location: index.php');
+        exit();
+        return;
+    }
 		$link = mysqli_connect("localhost", "root", "", "test"); 
 	  
 	if($link === false){ 
@@ -15,10 +22,14 @@
 	$email = $_POST['email'];
 	$headline = $_POST['headline'];
 	$summary = $_POST['summary'];
+/*    if(!isset($first_name) || (!isset($last_name)) || (!isset($email)) || (!isset($headline)) || (!isset($summary))){
+        header('Location: index.php');
+    }*/
 	//echo "Email".($_POST['email']).'.';
 	if($_POST['email'] != ''){
 		$sql = "INSERT INTO profile (user_id,first_name, last_name, email,headline,summary) VALUES ('$user_id','$first_name', '$last_name', '$email','$headline','$summary')";
 		if(mysqli_query($link, $sql)){
+            $_SESSION['conformation'] = "Profile added";
 	    echo "Records added successfully.";
 		} else{
 		    echo "ERROR: Could not able to execute $sql. " . mysqli_error($link);
@@ -66,18 +77,22 @@
                 </div>
                 <div class="card-body">
                     <form method="POST" action="add.php">
+                        <div>
+                            <center><p id="message" style="color: red"></p></center> 
+                        </div>
+                        
                         <div class="form-row m-b-55">
                             <div class="name">Name</div>
                             <div class="value">
                                 <div class="row row-space">
                                     <div class="col-2">
                                         <div class="input-group-desc">
-                                            <input class="input--style-5" type="text" value="" name="first_name" placeholder="First Name">
+                                            <input class="input--style-5" id="first_name" type="text" value="" name="first_name" placeholder="First Name">
                                         </div>
                                     </div>
                                     <div class="col-2">
                                         <div class="input-group-desc">
-                                            <input class="input--style-5" type="text" value="" name="last_name" placeholder="Last Name">
+                                            <input class="input--style-5" id="last_name" type="text" value="" name="last_name" placeholder="Last Name">
                                         </div>
                                     </div>
                                 </div>
@@ -87,7 +102,7 @@
                             <div class="name">Email</div>
                             <div class="value">
                                 <div class="input-group">
-                                    <input class="input--style-5" type="email" value="" name="email" placeholder="Email">
+                                    <input class="input--style-5" id="email" type="email" value="" name="email" placeholder="Email">
                                 </div>
                             </div>
                         </div>
@@ -95,7 +110,7 @@
                             <div class="name">Head Line</div>
                             <div class="value">
                                 <div class="input-group">
-                                    <input class="input--style-5" type="text" name="headline" value="" placeholder="Head Line">
+                                    <input class="input--style-5" id="headline" type="text" name="headline" value="" placeholder="Head Line">
                                 </div>
                             </div>
                         </div>
@@ -103,13 +118,14 @@
                             <div class="name">Summary</div>
                             <div class="value">
                                 <div class="input-group">
-  									<textarea class="input--style-5" rows="3" id="summary" name="summary" style="width: 500px; height: 150px;">
-  									</textarea>
+  									<textarea class=""  id="summary" name="summary" style="width: 500px; height: 150px;"></textarea>
                                 </div>
                             </div>
                         </div>
                         <div>
-                            <button class="btn btn--radius-2 btn--red" type="submit" style="float: right;">Register</button>
+                            <input class="btn btn--radius-2 btn--red" onclick="return doValidate();" type="submit" name="add" value="Add"  style="width: 25%;">
+                                &nbsp;  &nbsp;  &nbsp;  &nbsp;
+                            <input class="btn btn--radius-2 btn--red" type="submit" name="cancel" value="Cancel" style="width: 25%;">
                         </div>
                     </form>
                 </div>
@@ -125,7 +141,40 @@
     <script src="vendor/datepicker/daterangepicker.js"></script>
 
     <!-- Main JS-->
-    <script src="js/global.js"></script>
+
+<script>
+    function doValidate() {
+        console.log('Validating...');
+        first_name = document.getElementById('first_name').value;
+        console.log(first_name);
+        try {
+            first_name = document.getElementById('first_name').value;
+            last_name = document.getElementById('last_name').value;
+            email = document.getElementById('email').value;
+            headline = document.getElementById('headline').value;
+            summary = document.getElementById('summary').value;
+            //summary.replace(/ /g, "");
+/*            if(summary == "")
+            {
+                summary = "";
+            }*/
+            console.log(first_name);
+            console.log("Summary:"+(summary));
+
+            if (first_name == null || first_name == "" || last_name == null || last_name == "" || email == null || email == ""
+                 || headline == null || headline == "" || summary == null || summary == "") {
+                document.getElementById("message").innerHTML = "All values are required";
+                //alert("All values are required");
+                return false;
+            }
+            return true;
+        } catch(e) {
+            console.log('exception occured');
+            return false;
+        }
+        return false;
+    }
+</script>
 
 </body><!-- This templates was made by Colorlib (https://colorlib.com) -->
 

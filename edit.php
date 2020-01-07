@@ -1,15 +1,22 @@
 <?php
 	error_reporting(E_ERROR | E_WARNING | E_PARSE);
+	if(isset($_POST['cancel'])){
+	header('Location: index.php');
+	exit();
+	return;
+	}
 	if($_REQUEST['profile_id'] != '')
 	{
 		$_SESSION['profile_id']=$_REQUEST['profile_id'];
 		$profile_id = $_REQUEST['profile_id'];
 	}
 	else{
+		$counter = 1;
 		$profile_id = $_REQUEST['prof_id'];
+		//echo "Profile Id :".$profile_id;
 	}
 	$custId=$_REQUEST['custId'];
-	echo 'hello'.$profile_id;
+	//echo 'hello'.$profile_id;
 	//echo $custId;
 	$link = mysqli_connect("localhost", "root", "", "test"); 
 	  
@@ -18,32 +25,44 @@
 	                . mysqli_connect_error()); 
 	} 
 	$check = $profile_id;
-	if(isset($_REQUEST['profile_id']))
+	$email = ($_POST["email"]);
+	if(isset($_REQUEST['profile_id']) /*|| (!filter_var( $email, FILTER_VALIDATE_EMAIL))*/)
 	{
+		//echo 'Validation'.(filter_var( $email, FILTER_VALIDATE_EMAIL));
+	/*	$emailErr = "";
+		if((!filter_var($email, FILTER_VALIDATE_EMAIL)))
+		{
+			$emailErr = "Email address must contain @";
+		  	//echo $emailErr;
+		}*/
 		$sql = "SELECT * FROM profile WHERE profile_id= ".$profile_id;
 		$res = mysqli_query($link, $sql);
 		$row = mysqli_fetch_array($res);
+		$_SESSION['email'] = $row['email'];
+		//echo $_SESSION['email'];
 		$_REQUEST['profile_id'] = '';
 		mysqli_close($link);
 	}
 	else
 	{
-		$first_name = $_POST['first_name'];
-		$last_name = $_POST['last_name'];
-		$email = $_POST['email'];
-		$headline = $_POST['headline'];
-		$summary = $_POST['summary'];
-		$idn = $_SESSION['profile_id'];
-		$sql = "UPDATE profile SET first_name='$first_name',last_name='$last_name',email='$email',headline='$headline',summary='$summary' WHERE profile_id='$profile_id'";
-		echo $sql;
-		if (mysqli_query($link, $sql)) {
-		    echo "Record updated successfully";
-		} else {
-		    echo "Error updating record: " . mysqli_error($link);
-		}
+			$first_name = $_POST['first_name'];
+			$last_name = $_POST['last_name'];
+			$email = $_POST['email'];
+			$headline = $_POST['headline'];
+			$summary = $_POST['summary'];
+			$idn = $_SESSION['profile_id'];
+			$sql = "UPDATE profile SET first_name='$first_name',last_name='$last_name',email='$email',headline='$headline',summary='$summary' WHERE profile_id='$profile_id'";
+			$_SESSION['edit'] = "Profile updated";
+			echo $sql;
+			if (mysqli_query($link, $sql)) {
+			    echo "Record updated successfully";
+			} else {
+			    echo "Error updating record: " . mysqli_error($link);
+			}
 
-		mysqli_close($link);
-		header('Location: index.php');
+			mysqli_close($link);
+			header('Location: index.php');
+/*	}*/
 	}
 
 ?>
@@ -84,6 +103,9 @@
                 </div>
                 <div class="card-body">
                     <form method="POST" action="edit.php?prof_id=<?php echo $profile_id; ?>">
+                    	<div>
+                    		<p id="message" style="color: red;"></p>
+                    	</div>
                         <div class="form-row m-b-55">
                             <div class="name">Name</div>
                             <div class="value">
@@ -105,7 +127,7 @@
                             <div class="name">Email</div>
                             <div class="value">
                                 <div class="input-group">
-                                    <input class="input--style-5" type="email" value="<?php echo $row['email'];?>" name="email" placeholder="Email">
+                                    <input class="input--style-5" type="text" id="email" value="<?php echo $row['email'];?>" name="email" placeholder="Email">
                                 </div>
                             </div>
                         </div>
@@ -128,7 +150,9 @@
                             </div>
                         </div>
                         <div>
-                            <button class="btn btn--radius-2 btn--red" type="submit" style="float: right;">Register</button>
+                            <input onclick="return doValidate();" class="btn btn--radius-2 btn--red" type="submit" name="save" value="Save" style="width: 25%;">
+                                &nbsp;  &nbsp;  &nbsp;  &nbsp;
+                            <input class="btn btn--radius-2 btn--red" type="submit" name="cancel" value="Cancel" style="width: 25%;">
                         </div>
                     </form>
                 </div>
@@ -142,9 +166,39 @@
     <script src="vendor/select2/select2.min.js"></script>
     <script src="vendor/datepicker/moment.min.js"></script>
     <script src="vendor/datepicker/daterangepicker.js"></script>
+   
+    <script type="text/javascript">
+    function doValidate() {
+        console.log('Validating...');
+        //var email = document.getElementById('email').value;
+        //console.log(email);
+        try {
+            email = document.getElementById('email').value;
+			if(email.includes("@"))
+			{
+				//document.form.message.focus();
+				return true;
+			}
+			else
+			{
+				document.getElementById("message").innerHTML = "Email address must contain @";
+				return false;
+			}
 
-    <!-- Main JS-->
-    <script src="js/global.js"></script>
+            /*if (first_name == null || first_name == "" || last_name == null || last_name == "" || email == null || email == ""
+                 || headline == null || headline == "" || summary == null || summary == "") {
+                document.getElementById("message").innerHTML = "All values are required";
+                //alert("All values are required");
+                return false;
+            }*/
+            return true;
+        } catch(e) {
+            console.log('exception occured');
+            return false;
+        }
+        return false;
+    }
+</script>
 
 </body><!-- This templates was made by Colorlib (https://colorlib.com) -->
 
