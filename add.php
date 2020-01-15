@@ -122,6 +122,17 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="form-row">
+                            <div class="name">Position</div>
+                            <div class="value">
+                                <div class="">
+                                    <input style="width: 6%;border: none;height: 33px;font-size: 24px;" id="addPos" type="submit" name="addPos" value="+">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row" id="position_fields">
+                            
+                        </div>
                         <div>
                             <input class="btn btn--radius-2 btn--red" onclick="return doValidate();" type="submit" name="add" value="Add"  style="width: 25%;">
                                 &nbsp;  &nbsp;  &nbsp;  &nbsp;
@@ -142,39 +153,55 @@
 
     <!-- Main JS-->
 
-<script>
-    function doValidate() {
-        console.log('Validating...');
-        first_name = document.getElementById('first_name').value;
-        console.log(first_name);
-        try {
-            first_name = document.getElementById('first_name').value;
-            last_name = document.getElementById('last_name').value;
-            email = document.getElementById('email').value;
-            headline = document.getElementById('headline').value;
-            summary = document.getElementById('summary').value;
-            //summary.replace(/ /g, "");
-/*            if(summary == "")
-            {
-                summary = "";
-            }*/
-            console.log(first_name);
-            console.log("Summary:"+(summary));
+    <script type="text/javascript">
+        countPos = 0;
+        $(document).ready(function() {
+            console.log('Document Ready Called');
+            $('#addPos').click(function(event) {
+                event.preventDefault();
+                if(countPos >= 9)
+                {
+                    alert("Maximum of nine position entries exceeded");
+                    return;
+                }
+                countPos++;
+                $('#position_fields').append(
+                    '<div class="input--style-5" id="position'+countPos+'"> \
+                    <p> Year: <input style="width: 130px" type="text" name="year'+countPos+'" value=""/> \
+                <input style="width: 7%;border: none;height: 22px;font-size: 16px;" type="button" value="-" \ onclick="$(\'#position'+countPos+'\').remove();return false;"/> \
+                     </p> \
+                    <textarea name="desc'+countPos+'" rows="8" cols="80"></textarea> \
+                    </div>'
+                    );
+            });
+        });
 
-            if (first_name == null || first_name == "" || last_name == null || last_name == "" || email == null || email == ""
-                 || headline == null || headline == "" || summary == null || summary == "") {
-                document.getElementById("message").innerHTML = "All values are required";
-                //alert("All values are required");
+        function doValidate() {
+            console.log('Validating...');
+            first_name = document.getElementById('first_name').value;
+            console.log(first_name);
+            try {
+                first_name = document.getElementById('first_name').value;
+                last_name = document.getElementById('last_name').value;
+                email = document.getElementById('email').value;
+                headline = document.getElementById('headline').value;
+                summary = document.getElementById('summary').value;
+                console.log(first_name);
+                console.log("Summary:"+(summary));
+
+                if (first_name == null || first_name == "" || last_name == null || last_name == "" || email == null || email == ""
+                     || headline == null || headline == "" || summary == null || summary == "") {
+                    document.getElementById("message").innerHTML = "All values are required";
+                    return false;
+                }
+                return true;
+            } catch(e) {
+                console.log('exception occured');
                 return false;
             }
-            return true;
-        } catch(e) {
-            console.log('exception occured');
             return false;
         }
-        return false;
-    }
-</script>
+    </script>
 
 </body><!-- This templates was made by Colorlib (https://colorlib.com) -->
 
