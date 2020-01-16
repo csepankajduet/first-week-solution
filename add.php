@@ -1,4 +1,5 @@
 <?php
+    require_once 'util.php';
 	session_start();
 	error_reporting(E_ERROR | E_WARNING | E_PARSE);
     session_start();
@@ -22,21 +23,42 @@
 	$email = $_POST['email'];
 	$headline = $_POST['headline'];
 	$summary = $_POST['summary'];
-/*    if(!isset($first_name) || (!isset($last_name)) || (!isset($email)) || (!isset($headline)) || (!isset($summary))){
-        header('Location: index.php');
-    }*/
-	//echo "Email".($_POST['email']).'.';
-	if($_POST['email'] != ''){
-		$sql = "INSERT INTO profile (user_id,first_name, last_name, email,headline,summary) VALUES ('$user_id','$first_name', '$last_name', '$email','$headline','$summary')";
-		if(mysqli_query($link, $sql)){
-            $_SESSION['conformation'] = "Profile added";
-	    echo "Records added successfully.";
-		} else{
-		    echo "ERROR: Could not able to execute $sql. " . mysqli_error($link);
-		}
-	mysqli_close($link);
-	header('Location: index.php');
-	}
+    if(isset($first_name) && isset($last_name) && isset($email) && isset($headline) && isset($summary)){
+        //echo "Hello Bro's";
+        $msg = validateProfile();
+        if (is_string($msg)) {
+            $_SESSION['error'] = $msg;
+            header('Location: add.php');
+            return;
+        }
+        $msg = validatePos();
+        if (is_string($msg)) {
+            $_SESSION['error'] = $msg;
+            header('Location: add.php');
+            return;
+        }
+        
+    }
+	//echo "Error: ".($_SESSION['error']).'.';
+    if($_POST['email'] != ''){
+        $sql = "INSERT INTO profile (user_id,first_name, last_name, email,headline,summary) VALUES ('$user_id','$first_name', '$last_name', '$email','$headline','$summary')";
+        mysqli_query($link, $sql);
+        $last_row = "SELECT profile_id FROM profile ORDER BY profile_id DESC LIMIT 1";
+        $res = mysqli_query($link, $last_row);
+        $row = mysqli_fetch_array($res);
+        $profile_id = $row['profile_id'];
+        echo "Profile id: ".$profile_id;
+        $rank = 1;
+        for($i=1; $i<=9; $i++) {
+          if ( ! isset($_POST['year'.$i]) ) continue;
+          if ( ! isset($_POST['desc'.$i]) ) continue;
+          $year = $_POST['year'.$i];
+          $desc = $_POST['desc'.$i];
+          $stmt = "INSERT INTO position (profile_id, rank, year, description) VALUES ('$profile_id', '$rank', '$year', '$desc')";
+          mysqli_query($link, $stmt);
+          $rank++;
+        }
+    }
 
 ?>
 
@@ -80,6 +102,12 @@
                         <div>
                             <center><p id="message" style="color: red"></p></center> 
                         </div>
+                        <?php if (isset($_SESSION['error'])) {
+                            $fieldValue = $_SESSION['error']; ?>
+                            <center><p style="color: red"> <?php echo $fieldValue; ?></p></center>
+                        <?php } 
+                        unset($_SESSION['error']);
+                        ?>
                         
                         <div class="form-row m-b-55">
                             <div class="name">Name</div>
@@ -102,7 +130,7 @@
                             <div class="name">Email</div>
                             <div class="value">
                                 <div class="input-group">
-                                    <input class="input--style-5" id="email" type="email" value="" name="email" placeholder="Email">
+                                    <input class="input--style-5" id="email" value="" name="email" placeholder="Email">
                                 </div>
                             </div>
                         </div>
@@ -134,7 +162,7 @@
                             
                         </div>
                         <div>
-                            <input class="btn btn--radius-2 btn--red" onclick="return doValidate();" type="submit" name="add" value="Add"  style="width: 25%;">
+                            <input class="btn btn--radius-2 btn--red" type="submit" name="add" value="Add"  style="width: 25%;">
                                 &nbsp;  &nbsp;  &nbsp;  &nbsp;
                             <input class="btn btn--radius-2 btn--red" type="submit" name="cancel" value="Cancel" style="width: 25%;">
                         </div>
@@ -154,8 +182,9 @@
     <!-- Main JS-->
 
     <script type="text/javascript">
-        countPos = 0;
+        
         $(document).ready(function() {
+            countPos = 0;
             console.log('Document Ready Called');
             $('#addPos').click(function(event) {
                 event.preventDefault();
