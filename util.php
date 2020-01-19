@@ -28,3 +28,19 @@ function validateProfile(){
     }
   return true;
 }
+
+function editPosition()
+{
+  $link = mysqli_connect("localhost", "root", "", "test"); 
+    $rank = 1;
+    for($i=1; $i<=9; $i++) {
+      if ( ! isset($_POST['year'.$i]) ) continue;
+      if ( ! isset($_POST['desc'.$i]) ) continue;
+      $year = $_POST['year'.$i];
+      $desc = $_POST['desc'.$i];
+      $stmt = "INSERT INTO position (profile_id, rank, year, description) VALUES ('$profile_id', '$rank', '$year', '$desc')";
+      mysqli_query($link, $stmt);
+      $rank++;
+    }
+    return true;
+}

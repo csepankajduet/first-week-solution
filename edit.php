@@ -1,4 +1,5 @@
 <?php
+    require_once 'util.php';
 	error_reporting(E_ERROR | E_WARNING | E_PARSE);
 	if(isset($_POST['cancel'])){
 	header('Location: index.php');
@@ -26,18 +27,21 @@
 	} 
 	$check = $profile_id;
 	$email = ($_POST["email"]);
-	if(isset($_REQUEST['profile_id']) /*|| (!filter_var( $email, FILTER_VALIDATE_EMAIL))*/)
+	if(isset($_REQUEST['profile_id']))
 	{
-		//echo 'Validation'.(filter_var( $email, FILTER_VALIDATE_EMAIL));
-	/*	$emailErr = "";
-		if((!filter_var($email, FILTER_VALIDATE_EMAIL)))
-		{
-			$emailErr = "Email address must contain @";
-		  	//echo $emailErr;
-		}*/
 		$sql = "SELECT * FROM profile WHERE profile_id= ".$profile_id;
+        $sql2 = "SELECT * FROM position WHERE profile_id= ".$profile_id;
 		$res = mysqli_query($link, $sql);
+        //$res2 = mysqli_query($link, $sql2);
 		$row = mysqli_fetch_array($res);
+        $query2 = mysqli_query($link, $sql2 );  
+        //$row2 = mysqli_fetch_array($res2);
+        //echo $row2;
+        $positions = array();
+        while ($row2 = mysqli_fetch_array($query2)) {
+            $positions[] = $row2;
+        }
+        print_r($positions);
 		$_SESSION['email'] = $row['email'];
 		//echo $_SESSION['email'];
 		$_REQUEST['profile_id'] = '';
@@ -51,6 +55,24 @@
 			$headline = $_POST['headline'];
 			$summary = $_POST['summary'];
 			$idn = $_SESSION['profile_id'];
+
+            $sql = "DELETE FROM position WHERE profile_id='$profile_id'";
+            if ($link->query($sql) === TRUE) {
+                $_SESSION['conformation_delete'] = "Profile deleted";
+                echo "Record deleted successfully";
+            } else {
+                echo "Error deleting record: " . $link->error;
+            }
+            $rank = 1;
+            for($i=1; $i<=9; $i++) {
+              if ( ! isset($_POST['year'.$i]) ) continue;
+              if ( ! isset($_POST['desc'.$i]) ) continue;
+              $year = $_POST['year'.$i];
+              $desc = $_POST['desc'.$i];
+              $stmt = "INSERT INTO position (profile_id, rank, year, description) VALUES ('$profile_id', '$rank', '$year', '$desc')";
+              mysqli_query($link, $stmt);
+              $rank++;
+            }
 			$sql = "UPDATE profile SET first_name='$first_name',last_name='$last_name',email='$email',headline='$headline',summary='$summary' WHERE profile_id='$profile_id'";
 			$_SESSION['edit'] = "Profile updated";
 			echo $sql;
@@ -149,6 +171,37 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="form-row">
+                            <div class="name">Position</div>
+                            <div class="value">
+                                <div class="">
+                                    <input style="width: 6%;border: none;height: 33px;font-size: 24px;" id="addPos" type="submit" name="addPos" value="+">
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <?php 
+                            $pos = 0;
+                            foreach ($positions as $key => $position) {
+                                $pos++;
+
+                                echo ('<div class="input--style-5" id="position'.$pos.'">'."\n");
+                                echo ('<p> Year: <input style="width: 130px" type="text" name="year'.$pos.'"');
+                                echo ('value="'.$position['year'].'"/>'."\n");
+                                echo ('<input style="width: 7%;border: none;height: 22px;font-size: 16px;" type="button"');
+                                echo ('value="-" \ onclick="$(\'#position'.$pos.'\').remove();return false;"/>'."\n");
+                                echo('</p> '."\n");
+                                echo ('<textarea name="desc'.$pos.'" rows="8" cols="80">'."\n");
+                                echo (htmlentities($position['description']))."\n";
+                                echo('</textarea>'."\n");
+                                echo ('</div>'."\n");
+                            }
+                        ?>
+                        <div class="form-row" id="position_fields">
+                            
+                        </div>
                         <div>
                             <input onclick="return doValidate();" class="btn btn--radius-2 btn--red" type="submit" name="save" value="Save" style="width: 25%;">
                                 &nbsp;  &nbsp;  &nbsp;  &nbsp;
@@ -168,6 +221,28 @@
     <script src="vendor/datepicker/daterangepicker.js"></script>
    
     <script type="text/javascript">
+        $(document).ready(function() {
+            //countPos = 0;
+            countPos = "<?php echo $pos ?>";
+            console.log('Document Ready Called');
+            $('#addPos').click(function(event) {
+                event.preventDefault();
+                if(countPos >= 9)
+                {
+                    alert("Maximum of nine position entries exceeded");
+                    return;
+                }
+                countPos++;
+                $('#position_fields').append(
+                    '<div class="input--style-5" id="position'+countPos+'"> \
+                    <p> Year: <input style="width: 130px" type="text" name="year'+countPos+'" value=""/> \
+                <input style="width: 7%;border: none;height: 22px;font-size: 16px;" type="button" value="-" \ onclick="$(\'#position'+countPos+'\').remove();return false;"/> \
+                     </p> \
+                    <textarea name="desc'+countPos+'" rows="8" cols="80"></textarea> \
+                    </div>'
+                    );
+            });
+        });
     function doValidate() {
         console.log('Validating...');
         //var email = document.getElementById('email').value;
